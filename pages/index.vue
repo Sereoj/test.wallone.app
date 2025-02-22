@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePostStore } from '~/stores/posts'
 import ExploreFilters from "~/components/modules/content/ExploreFilters.vue";
 import HeroSection from "~/components/partials/HeroSection.vue";
 import Gallery from '~/components/modules/content/Gallery.vue';
@@ -9,102 +10,8 @@ import BaseButton from "~/components/base/buttons/BaseButton.vue";
 import Comments from "~/components/partials/comments/Comments.vue";
 
 
-const galleryItems = [
-  {
-    type: 'image',
-    src: '/images/1.jpg',
-    alt: 'Span 2x2',
-    classes: ['gallery-item--span-2x2']
-  },
-  {
-    type: 'double',
-    images: [
-      { src: '/images/2.jpg', alt: 'Double 1' },
-      { src: '/images/3.jpg', alt: 'Double 2' }
-    ]
-  },
-  {
-    type: 'image',
-    src: '/images/1.jpg',
-    alt: 'Single'
-  },
-  {
-    type: 'triple',
-    images: [
-      { src: '/images/2.jpg', alt: 'Triple 1' },
-      { src: '/images/3.jpg', alt: 'Triple 2' },
-      { src: '/images/1.jpg', alt: 'Triple 3' }
-    ]
-  },
-  {
-    type: 'image',
-    src: '/images/2.jpg',
-    alt: 'Span 2',
-    classes: ['gallery-item--span-2']
-  },
-  {
-    type: 'quad',
-    images: [
-      { src: '/images/1.jpg', alt: 'Quad 1' },
-      { src: '/images/2.jpg', alt: 'Quad 2' },
-      { src: '/images/3.jpg', alt: 'Quad 3' },
-      { src: 'https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif', alt: 'Quad 4' }
-    ]
-  },
-  {
-    type: 'image',
-    src: '/images/3.jpg',
-    alt: 'Single'
-  },
-  {
-    type: 'video',
-    src: 'https://filesamples.com/samples/video/mp4/sample_640x360.mp4'
-  },
-  {
-    type: 'image',
-    src: 'https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif',
-    alt: 'GIF'
-  },
-  {
-    type: 'double',
-    images: [
-      { src: '/images/2.jpg', alt: 'Double 1' },
-      { src: '/images/3.jpg', alt: 'Double 2' }
-    ]
-  },
-  {
-    type: 'video',
-    src: 'https://filesamples.com/samples/video/mp4/sample_640x360.mp4'
-  },
-  {
-    type: 'triple',
-    images: [
-      { src: '/images/1.jpg', alt: 'Triple 1' },
-      { src: '/images/2.jpg', alt: 'Triple 2' },
-      { src: '/images/3.jpg', alt: 'Triple 3' }
-    ]
-  },
-  {
-    type: 'quad',
-    images: [
-      { src: '/images/1.jpg', alt: 'Quad 1' },
-      { src: '/images/2.jpg', alt: 'Quad 2' },
-      { src: '/images/3.jpg', alt: 'Quad 3' },
-      { src: 'https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif', alt: 'Quad 4' }
-    ]
-  },
-  {
-    type: 'image',
-    src: '/images/3.jpg',
-    alt: 'Single'
-  },
-  {
-    type: 'image',
-    src: '/images/1.jpg',
-    alt: 'Span Rows',
-    classes: ['gallery-item--span-rows']
-  }
-];
+const postStore = usePostStore()
+await postStore.fetchPosts()
 
 const mainMedia = {
   type: 'image',
@@ -187,10 +94,10 @@ const comments: Comment[] = [
                  title="Wallone - место, где"
                  highlight="искусство"
                  subtitle="правит миром."/>
-    <MediaModal
+<!--    <MediaModal
         :mainMedia="mainMedia"
         :thumbnails="thumbnails"
-    />
+    />-->
 
     <AuthorInfo
         :author="author"
@@ -210,7 +117,7 @@ const comments: Comment[] = [
             <BaseButton type="link">#Tag</BaseButton>
             <BaseButton type="link">#Tag</BaseButton>
           </div>
-          <Comments :comments="comments"/>
+<!--          <Comments :comments="comments"/>-->
         </div>
         <div v-else-if="activeTab === 'additional'">
           <h2>Дополнительная информация</h2>
@@ -222,7 +129,7 @@ const comments: Comment[] = [
       </template>
     </Tabs>
 
-    <Gallery :items="galleryItems" />
+    <Gallery :items="postStore.posts" />
   </main>
 </template>
 

@@ -1,0 +1,17 @@
+@use "sass:map";
+
+@function theme-value($theme-map, $key) {
+  @if not map.has-key($theme-map, $key) {
+    @warn "Ключ '#{$key}' не найден в теме.";
+    @return null;
+  }
+
+  $value: map.get($theme-map, $key);
+
+  @if $value == null {
+    @warn "Значение для ключа '#{$key}' является null.";
+    @return null;
+  }
+
+  @return $value;
+}
