@@ -1,54 +1,76 @@
-import { defineStore } from 'pinia'
+import {customFetch} from "~/utils/api";
 
-interface User {
-    username: string
-    slug: string
-    verification: boolean
-    avatar?: { path: string }
+export interface MediaItem {
+    type: 'image' | 'video';
+    src: string;
 }
 
-interface Media {
-    path: string
-    mime_type: string
-    type: string
+export interface MediaGroup {
+    type: 'group';
+    group: MediaItem[];
 }
 
-interface Post {
-    title: string
-    slug: string
-    is_adult_content: boolean
-    is_nsfl_content: boolean
-    is_free: boolean
-    has_copyright: boolean
-    user: User
-    media: Media[]
-    created_at: string
-    updated_at: string
+export interface User {
+    username: string;
+    slug: string;
+    verification: boolean;
+    avatar: { path: string };
 }
 
-export const usePostStore = defineStore('posts', {
+export interface Post {
+    title: string;
+    slug: string;
+    is_adult_content: boolean;
+    is_nsfl_content: boolean;
+    is_free: boolean;
+    has_copyright: boolean;
+    user: User;
+    media?: MediaGroup[];
+}
+
+export const usePostsStore = defineStore('posts', {
     state: () => ({
         posts: [] as Post[],
         loading: false,
-        error: null as string | null
+        error: null,
+        page: 1,
+        perPage: 40,
+        hasMore: true,
     }),
-
     actions: {
         async fetchPosts() {
-            this.loading = true
-            this.error = null
-            try {
-                const { data, error } = await useApiFetch<Post[]>('/public/api/posts', {
-                    query: { per_page: 20, page_offset: 0 }
-                })
+            if (this.loading || !this.hasMore) return;
 
-                if (error.value) throw new Error(error.value.message)
-                if (data.value) this.posts = data.value
-            } catch (err) {
-                this.error = (err as Error).message
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const { data, error } = await customFetch<Post[]>('/public/api/posts', {
+                    query: { per_page: this.perPage, page: this.page },
+                });
+
+                console.log('Fetched posts:', data);
+
+                if (error) {
+                    Logger.error('Error fetching posts:', error);
+                    throw new Error(error.message || 'Failed to fetch posts');
+                }
+
+                if (data && data.length > 0) {
+                    this.posts.push(...data.map((post) => ({
+                        ...post,
+                        media: post.media || [],
+                    })));
+                    this.page++;
+                } else {
+                    this.hasMore = false;
+                }
+            } catch (err: any) {
+                Logger.error(err.value);
+                this.error = err.message || 'An unknown error occurred';
             } finally {
-                this.loading = false
+                this.loading = false;
             }
-        }
-    }
-})
+        },
+    },
+});

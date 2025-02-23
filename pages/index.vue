@@ -1,91 +1,55 @@
 <script setup lang="ts">
-import { usePostStore } from '~/stores/posts'
 import ExploreFilters from "~/components/modules/content/ExploreFilters.vue";
 import HeroSection from "~/components/partials/HeroSection.vue";
 import Gallery from '~/components/modules/content/Gallery.vue';
-import MediaModal from "~/components/partials/Modal/MediaModal.vue";
-import AuthorInfo from "~/components/partials/modal/AuthorInfo.vue";
-import Tabs from "~/components/modules/content/Tabs.vue";
-import BaseButton from "~/components/base/buttons/BaseButton.vue";
-import Comments from "~/components/partials/comments/Comments.vue";
+import {usePostsStore} from "~/stores/posts";
 
+const postsStore = usePostsStore();
+const { posts, loading, error, hasMore } = storeToRefs(postsStore);
+const observerTarget = ref<HTMLElement | null>(null);
 
-const postStore = usePostStore()
-await postStore.fetchPosts()
+let observer: IntersectionObserver | null = null;
 
-const mainMedia = {
-  type: 'image',
-  src: '/images/1.jpg',
-  alt: 'Main Media'
-};
+onMounted(async () => {
+  try {
+    await postsStore.fetchPosts();
 
-const thumbnails = [
-  {
-    type: 'image',
-    src: '/images/2.jpg',
-    alt: 'Thumbnail 1'
-  },
-  {
-    type: 'image',
-    src: '/images/2.jpg',
-    alt: 'Thumbnail 2'
-  },
-  {
-    type: 'gif',
-    src: 'https://media.giphy.com/media/26BRuo6sLetdllPAQ/giphy.gif',
-    alt: 'Thumbnail 3'
+    if (observerTarget.value) {
+      observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                console.log('Достигнут конец страницы');
+                if (!loading.value && hasMore.value) {
+                  postsStore.fetchPosts();
+                }
+              }
+            });
+          },
+          { threshold: 0.5 }
+      );
+
+      observer.observe(observerTarget.value);
+    } else {
+      console.warn('Элемент для наблюдения не найден');
+    }
+  } catch (error) {
+    console.error('Ошибка при загрузке постов:', error);
   }
-];
+});
 
-const author = {
-  avatar: '/assets/images/user.png',
-  name: 'John Doe',
-  username: '@johndoe'
-};
+watch(
+    () => postsStore.posts,
+    (newPosts) => {
+      console.log('Посты обновлены:', newPosts);
+    }
+);
 
-const stats = {
-  likes: 123,
-  views: 999,
-  shares: 45,
-  comments: 32
-};
-
-const tabs = [
-  { label: 'Общее', value: 'general' },
-  { label: 'Дополнительная информация', value: 'additional' }
-];
-
-const activeTab = ref('general');
-
-const comments: Comment[] = [
-  {
-    id: 1,
-    user_id: 3,
-    post_id: 1,
-    content: 'hello world',
-    parent_id: null,
-    created_at: '2025-02-20T16:26:37.000000Z',
-    updated_at: '2025-02-20T16:26:37.000000Z',
-    deleted_at: null,
-    replies: [
-      {
-        id: 2,
-        user_id: 3,
-        post_id: 1,
-        content: 'hello world',
-        parent_id: 1,
-        created_at: '2025-02-20T16:33:11.000000Z',
-        updated_at: '2025-02-20T16:33:11.000000Z',
-        deleted_at: null,
-        replies: [],
-        likes: [],
-        reports: [],
-      },
-    ],
-    likes: [],
-    reports: [],
-  },
-];
+onBeforeUnmount(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
 </script>
 <template>
 <main class="main">
@@ -94,52 +58,40 @@ const comments: Comment[] = [
                  title="Wallone - место, где"
                  highlight="искусство"
                  subtitle="правит миром."/>
-<!--    <MediaModal
-        :mainMedia="mainMedia"
-        :thumbnails="thumbnails"
-    />-->
-
-    <AuthorInfo
-        :author="author"
-        :stats="stats"
-    />
-
-    <Tabs :tabs="tabs" v-model:activeTab="activeTab">
-      <template #default="{ activeTab }">
-        <div v-if="activeTab === 'general'">
-          <h3>Общее</h3>
-          <p class="description">Описание поста: Lorem ipsum dolor sit amet, consectetur adipiscing
-            elit.</p>
-
-          <div class="modal-tags">
-            <BaseButton type="link">#Tag</BaseButton>
-            <BaseButton type="link">#Tag</BaseButton>
-            <BaseButton type="link">#Tag</BaseButton>
-            <BaseButton type="link">#Tag</BaseButton>
-          </div>
-<!--          <Comments :comments="comments"/>-->
-        </div>
-        <div v-else-if="activeTab === 'additional'">
-          <h2>Дополнительная информация</h2>
-          <p>Здесь будет дополнительная информация.</p>
-        </div>
-        <div v-else>
-          <p>Выберите таб для просмотра информации.</p>
-        </div>
-      </template>
-    </Tabs>
-
-    <Gallery :items="postStore.posts" />
+    <Gallery :posts="posts" />
+    <div v-if="loading && hasMore" class="loading-indicator">Загрузка...</div>
+    <div v-if="error" class="error">{{ error }}</div>
+    <div ref="observerTarget" class="observer-target"></div>
   </main>
 </template>
 
 <style lang="scss" scoped>
+.observer-target {
+  height: 50px;
+  visibility: hidden;
+}
+
+.loading-indicator {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+}
+
+
 .modal-tags {
   display: flex;
   gap: 8px;
 }
 
 .main {
+  min-height: 100vh;
   margin-top: 5rem;
   padding: $spacing-lg;
 }

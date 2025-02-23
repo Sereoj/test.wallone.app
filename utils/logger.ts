@@ -74,14 +74,4 @@ export class Logger {
     static enableLogging(enabled: boolean) {
         this.isLoggingEnabled = enabled
     }
-
-    static setupGlobalErrorHandler() {
-        window.onerror = (message, source, lineno, colno, error) => {
-            this.error('Unhandled Error', { message, source, lineno, colno, error })
-        }
-
-        window.addEventListener('unhandledrejection', (event) => {
-            this.error('Unhandled Promise Rejection', { reason: event.reason })
-        })
-    }
 }
