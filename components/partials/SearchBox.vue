@@ -1,24 +1,28 @@
 <script setup>
 import {ref} from 'vue';
 
-defineProps( {
+const props = defineProps( {
   name: {
     type: String,
     required: true
+  },
+  placeholder: {
+    type: String,
   }
 })
 
 
 const searchQuery = ref('');
+const computedPlaceholder = computed(() => props.placeholder || "Поиск...");
 </script>
 
 <template>
   <div class="search-wrapper">
     <input
         type="text"
-        :name="name"
+        :name="props.name"
         class="search-input"
-        placeholder="Поиск..."
+        :placeholder="computedPlaceholder"
         v-model="searchQuery"
     />
     <button class="search-btn">

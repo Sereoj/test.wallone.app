@@ -1,14 +1,37 @@
-import { User } from './user';
-import { MediaGroup } from './media';
+import { User } from '~/types/user';
+import { MediaGroup, MediaItem } from '~/types/media';
+import type {Settings} from "~/types/settings";
+import type {Statistics} from "~/types/statistics";
+import type {App} from "~/types/app";
+import type {Tag} from "~/types/tag";
+
+export interface PostsState {
+    posts: Post[];
+    loading: boolean;
+    error: string | null;
+    page: number;
+    perPage: number;
+    hasMore: boolean;
+}
+
+export interface PostState {
+    postData: Partial<Post>;
+    loading: boolean;
+    error: string | null;
+    currentMedia: Partial<MediaItem>;
+}
 
 export interface Post {
-    id: number,
+    id: number;
     title: string;
     slug: string;
-    is_adult_content: boolean;
-    is_nsfl_content: boolean;
-    is_free: boolean;
-    has_copyright: boolean;
+    content: string;
+    settings: Settings;
+    media: MediaItem[];
     user: User;
-    media?: MediaGroup[];
+    statistics: Statistics;
+    apps: App[];
+    tags: Tag[];
+    created_at: string;
+    updated_at: string;
 }

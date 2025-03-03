@@ -1,8 +1,10 @@
-import {customFetch} from "~/utils/api";
+import { defineStore } from 'pinia';
+import axios, { AxiosInstance, AxiosError } from 'axios';
+import type {Post, PostsState} from "~/types/post";
 
 export const usePostsStore = defineStore('posts', {
-    state: () => ({
-        posts: [] as Post[],
+    state: (): PostsState => ({
+        posts: [],
         loading: false,
         error: null,
         page: 1,
@@ -10,36 +12,45 @@ export const usePostsStore = defineStore('posts', {
         hasMore: true,
     }),
     actions: {
-        async fetchPosts() {
+        async fetchPosts(this: PostsState & { $axios?: AxiosInstance }) {
             if (this.loading || !this.hasMore) return;
 
             this.loading = true;
             this.error = null;
 
+            // Получаем Axios из Nuxt через useNuxtApp (предполагается, что он зарегистрирован в плагине)
+            const { $axios } = useNuxtApp<{
+                $axios: AxiosInstance;
+            }>();
+
             try {
-                const { data, error } = await customFetch<Post[]>('/public/api/posts', {
-                    query: { per_page: this.perPage, page: this.page },
+                const response = await $axios.get<Post[]>('/public/api/posts', {
+                    params: {
+                        per_page: this.perPage,
+                        page: this.page,
+                    },
                 });
 
-                console.log('Fetched posts:', data);
+                console.log('Fetched posts:', response.data);
 
-                if (error) {
-                    Logger.error('Error fetching posts:', error);
-                    throw new Error(error.message || 'Failed to fetch posts');
-                }
-
-                if (data && data.length > 0) {
-                    this.posts.push(...data.map((post) => ({
-                        ...post,
-                        media: post.media || [],
-                    })));
+                if (response.data && response.data.length > 0) {
+                    this.posts.push(
+                        ...response.data.map((post) => ({
+                            ...post,
+                            media: post.media || [],
+                        }))
+                    );
                     this.page++;
                 } else {
                     this.hasMore = false;
                 }
-            } catch (err: any) {
-                Logger.error(err.value);
-                this.error = err.message || 'An unknown error occurred';
+            } catch (err: unknown) {
+                // Обработка ошибок с типизацией для Axios
+                const error = err as AxiosError<{ message?: string }>;
+                const errorMessage =
+                    error.response?.data?.message || error.message || 'Failed to fetch posts';
+                console.error('Error fetching posts:', errorMessage); // Заменяем Logger на console.error
+                this.error = errorMessage;
             } finally {
                 this.loading = false;
             }

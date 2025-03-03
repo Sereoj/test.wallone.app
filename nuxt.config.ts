@@ -7,11 +7,6 @@ export default defineNuxtConfig({
   css: ['~/assets/styles/global.scss'],
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  runtimeConfig : {
-    public: {
-      apiBase: 'http://test'
-    }
-  },
   ssr: true,
   vite: {
     css: {

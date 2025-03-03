@@ -23,7 +23,11 @@ $dark-theme: (
         disabled-text-color: #666666,
         hover-bg-color: color.adjust(#10B981, $lightness: 5%),
         hover-bg-color2: #333,
-        active-bg-color: color.scale(#10B981, $lightness: 15%)
+        active-bg-color: color.scale(#10B981, $lightness: 15%),
+
+  // Добавленные переменные для skeleton loader
+        skeleton-color-start: rgba(40, 40, 40, 0.5),
+        skeleton-color-end: rgba(60, 60, 60, 0.8)
 );
 
 // Светлая тема
@@ -48,7 +52,11 @@ $light-theme: (
         disabled-text-color: #adb5bd,
         hover-bg-color: color.adjust(#007bff, $lightness: 10%),
         hover-bg-color2: #333,
-        active-bg-color: color.scale(#007bff, $lightness: 10%)
+        active-bg-color: color.scale(#007bff, $lightness: 10%),
+
+  // Добавленные переменные для skeleton loader
+        skeleton-color-start: rgba(200, 200, 200, 0.5),
+        skeleton-color-end: rgba(230, 230, 230, 0.8)
 );
 
 // Пример использования

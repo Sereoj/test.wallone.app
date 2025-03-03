@@ -2,19 +2,28 @@
 import BaseButton from "~/components/base/buttons/BaseButton.vue";
 import SearchBox from "~/components/partials/SearchBox.vue";
 import Logo from "~/components/partials/Logo.vue";
+
+const props = defineProps({
+  placeholder: {
+    type: String,
+  }
+});
 </script>
 
 <template>
   <header class="header">
     <div class="header-container">
+
+      <!-- Левая колонка (логотип) -->
       <div class="header-column header-left">
-        <Logo/>
+        <Logo />
       </div>
 
+      <!-- Центральная колонка (поиск) -->
       <div class="header-column header-center">
         <div class="header-search">
-          <SearchBox name="search-box"/>
-          <BaseButton type="icon" name="mic-button">
+          <SearchBox name="search-box" :placeholder="props.placeholder" />
+          <BaseButton type="icon" name="mic-button" aria-label="Activate microphone">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                  stroke="currentColor" width="20" height="20">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -24,12 +33,13 @@ import Logo from "~/components/partials/Logo.vue";
         </div>
       </div>
 
-      <!-- Правая часть (20%) -->
+      <!-- Правая колонка (кнопки действий) -->
       <div class="header-column header-right">
         <BaseButton type="default" name="btn-publish">Опубликовать</BaseButton>
         <BaseButton type="outline" name="btn-signin">Sign In</BaseButton>
         <BaseButton type="default" name="btn-signup">Sign Up</BaseButton>
       </div>
+
     </div>
   </header>
 </template>

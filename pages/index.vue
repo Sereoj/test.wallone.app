@@ -1,69 +1,69 @@
 <script setup lang="ts">
 import ExploreFilters from "~/components/modules/content/ExploreFilters.vue";
 import HeroSection from "~/components/partials/HeroSection.vue";
-import Gallery from '~/components/modules/content/Gallery.vue';
-import {usePostsStore} from "~/stores/posts";
+import Gallery from "~/components/modules/content/Gallery.vue";
+import { useInitStore } from "~/stores/init";
+import { usePostsStore } from "~/stores/posts";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { storeToRefs } from "pinia";
 
+// Инициализация хранилищ
+const initStore = useInitStore();
 const postsStore = usePostsStore();
 const { posts, loading, error, hasMore } = storeToRefs(postsStore);
 const observerTarget = ref<HTMLElement | null>(null);
 
 let observer: IntersectionObserver | null = null;
 
+// Загружаем посты
 onMounted(async () => {
-  try {
-    await postsStore.fetchPosts();
+  await postsStore.fetchPosts();
 
-    if (observerTarget.value) {
-      observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                console.log('Достигнут конец страницы');
-                if (!loading.value && hasMore.value) {
-                  postsStore.fetchPosts();
-                }
-              }
-            });
-          },
-          { threshold: 0.5 }
-      );
-
-      observer.observe(observerTarget.value);
-    } else {
-      console.warn('Элемент для наблюдения не найден');
-    }
-  } catch (error) {
-    console.error('Ошибка при загрузке постов:', error);
+  if (observerTarget.value) {
+    observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !loading.value && hasMore.value) {
+              postsStore.fetchPosts();
+            }
+          });
+        },
+        { threshold: 0.5 }
+    );
+    observer.observe(observerTarget.value);
   }
 });
 
-watch(
-    () => postsStore.posts,
-    (newPosts) => {
-      console.log('Посты обновлены:', newPosts);
-    }
-);
+// Отслеживаем обновление постов
+watch(() => posts.value, (newPosts) => {
+  console.log("Посты обновлены:", newPosts);
+});
 
+// Отключаем Intersection Observer при размонтировании
 onBeforeUnmount(() => {
-  if (observer) {
-    observer.disconnect();
-  }
+  if (observer) observer.disconnect();
 });
 </script>
+
 <template>
-<main class="main">
-    <ExploreFilters/>
-    <HeroSection image-url="main.jpg"
-                 title="Wallone - место, где"
-                 highlight="искусство"
-                 subtitle="правит миром."/>
-    <Gallery :posts="posts" />
-    <div v-if="loading && hasMore" class="loading-indicator">Загрузка...</div>
-    <div v-if="error" class="error">{{ error }}</div>
-    <div ref="observerTarget" class="observer-target"></div>
+  <main class="main">
+    <template v-if="initStore.isLoaded">
+      <ExploreFilters :tags="initStore.tags" :options="initStore.options" />
+      <HeroSection
+          image-url="main.jpg"
+          title="Wallone - место, где"
+          highlight="искусство"
+          subtitle="правит миром."
+      />
+      <Gallery :posts="posts" />
+      <div v-if="loading && hasMore" class="loading-indicator">Загрузка...</div>
+      <div v-if="error" class="error">{{ error }}</div>
+      <div ref="observerTarget" class="observer-target"></div>
+    </template>
+    <p v-else>Загрузка...</p>
   </main>
 </template>
+
 
 <style lang="scss" scoped>
 .observer-target {
