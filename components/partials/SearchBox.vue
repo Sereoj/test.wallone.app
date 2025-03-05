@@ -92,6 +92,4 @@ const computedPlaceholder = computed(() => props.placeholder || "Поиск...")
     }
   }
 }
-
-
 </style>

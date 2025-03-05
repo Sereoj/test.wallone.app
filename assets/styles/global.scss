@@ -39,6 +39,85 @@ body {
   color: theme-value($theme, text-color);
 }
 
+.auth-container {
+  background-color: theme-value($theme, secondary-color);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px theme-value($theme, border-color);
+  text-align: center;
+  width:100%;
+  max-width:400px;
+
+  .auth-form {
+    display:flex;
+    flex-direction:column;
+
+    label {
+      font-size:.9rem;
+      margin-bottom:.5rem;
+      text-align:left;
+      color:theme-value($theme,text-color);
+    }
+
+    input {
+      padding:.8rem;
+      margin-bottom:1rem;
+      border-radius:4px;
+      border:none;
+      background-color:theme-value($theme,disabled-bg-color);
+      color:theme-value($theme,text-color);
+
+      &:focus {
+        outline:none;
+        border:2px solid theme-value($theme,focus-border-color);
+      }
+    }
+
+    .btn-primary {
+      background-color:theme-value($theme,primary-color);
+      color:#fff;
+      padding:.8rem;
+      border-radius:4px;
+      border:none;
+      cursor:pointer;
+
+      &:hover {
+        background-color:theme-value($theme,hover-bg-color);
+      }
+    }
+
+    a {
+      color: theme-value($theme, link-color);
+      text-decoration:none;
+
+      &:hover{
+        color: theme-value($theme, hover-bg-color);
+      }
+    }
+  }
+
+  .auth-link{
+    margin-top:.8rem;
+    color:#fff;
+
+    a{
+      color : theme-value($theme, link-color);
+      text-decoration:none;
+
+      &:hover{
+        color : theme-value($theme, hover-bg-color);
+      }
+    }
+  }
+
+  .description{
+    font-size:.9rem;
+    line-height :1.5;
+    margin-bottom :1rem;
+    color : theme-value($theme,text-color);
+  }
+}
+
 /* Отключаем прокрутку */
 .no-scroll {
   overflow: hidden;

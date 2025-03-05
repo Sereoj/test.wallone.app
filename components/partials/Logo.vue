@@ -1,9 +1,18 @@
 <script setup lang="ts">
-
+const props = defineProps({
+  link: {
+    type: String,
+    default: '/',
+  },
+  additionalClasses: {
+    type: String,
+    default: '',
+  },
+});
 </script>
 
 <template>
-  <NuxtLink to="/" class="logo">
+  <NuxtLink :to="link" class="logo" :class="additionalClasses">
     <svg class="logo-icon" width="32" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
       <mask id="a" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="32"
             height="26">
