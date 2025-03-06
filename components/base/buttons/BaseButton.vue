@@ -11,6 +11,7 @@
       }
     ]"
       v-bind="$attrs"
+      @click="handleClick"
   >
     <slot />
   </component>
@@ -28,6 +29,10 @@ const props = defineProps({
   tag: {
     type: String,
     default: 'button'
+  },
+  onClick: {
+    type: Function,
+    default: null
   }
 });
 
@@ -35,6 +40,12 @@ const tag = computed(() => {
   if (props.type === 'link') return 'a';
   return props.tag;
 });
+
+const handleClick = (event: Event) => {
+  if (props.onClick) {
+    props.onClick(event);
+  }
+};
 </script>
 
 <style lang="scss">

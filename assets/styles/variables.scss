@@ -64,6 +64,9 @@ $theme: $dark-theme;
 
 $text-muted: theme-value($theme, secondary-color);
 
+$mobile-breakpoint: 768px;
+$tablet-breakpoint: 1024px;
+
 // Размеры шрифта
 $font-size-base: 16px;
 $font-size-small: 14px;

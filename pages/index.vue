@@ -4,7 +4,7 @@ import HeroSection from "~/components/partials/HeroSection.vue";
 import Gallery from "~/components/modules/content/Gallery.vue";
 import { useInitStore } from "~/stores/init";
 import { usePostsStore } from "~/stores/posts";
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+
 import { storeToRefs } from "pinia";
 
 // Инициализация хранилищ

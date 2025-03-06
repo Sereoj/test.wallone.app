@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import type { Init } from "~/types/init";
+import type {Tag} from "~/types/tag";
 
 export const useInitStore = defineStore("init", {
     state: () => ({
-        tags: [] as string[],
+        tags: [] as Tag[],
         options: [] as any[],
         hits: [] as string[],
         hero: [] as any[],

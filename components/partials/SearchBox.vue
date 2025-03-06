@@ -79,7 +79,7 @@ const computedPlaceholder = computed(() => props.placeholder || "Поиск...")
     background-color: theme-value($theme, secondary-color);
     color: theme-value($theme, text-color);
     border: 2px solid transparent;
-    padding: $border-radius-lg 12px;
+    padding: 5px 8px;
     cursor: pointer;
     font-size: 16px;
     border-radius: 0 $border-radius-lg $border-radius-lg 0;
