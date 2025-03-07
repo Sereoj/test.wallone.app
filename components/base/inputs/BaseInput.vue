@@ -6,16 +6,16 @@
         :type="type"
         :placeholder="placeholder"
         :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="updateValue($event.target.value)"
         required
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
-// Пропсы компонента
+// Определяем пропсы компонента
 const props = defineProps({
   modelValue: {
     type: String,
@@ -38,7 +38,16 @@ const props = defineProps({
     required: true,
   },
 });
+
+// Определяем эмиттер для события
+const emit = defineEmits();
+
+// Обработчик для события input
+const updateValue = (value: string) => {
+  emit('update:modelValue', value);
+};
 </script>
+
 
 <style scoped lang="scss">
 
@@ -57,13 +66,14 @@ const props = defineProps({
     padding: 0.8rem;
     width: 100%;
     border-radius: 4px;
-    border: none;
+    border: 2px solid transparent;
     background-color: theme-value($theme, disabled-bg-color);
     color: theme-value($theme, text-color);
+    transition: border 0.2s ease-in-out;
 
     &:focus {
       outline: none;
-      border: 2px solid theme-value($theme, focus-border-color);
+      border-color: theme-value($theme, focus-border-color);
     }
   }
 }

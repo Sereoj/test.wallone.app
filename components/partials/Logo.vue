@@ -8,11 +8,15 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  isCenter: {
+    type: Boolean,
+    default: false
+  }
 });
 </script>
 
 <template>
-  <NuxtLink :to="link" class="logo" :class="additionalClasses">
+  <NuxtLink :to="link" class="logo" :class="additionalClasses, { 'centered' : isCenter}">
     <svg class="logo-icon" width="32" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
       <mask id="a" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="32"
             height="26">

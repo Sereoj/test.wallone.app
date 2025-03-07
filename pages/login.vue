@@ -3,6 +3,7 @@ import { ref } from "vue";
 import BaseButton from "~/components/base/buttons/BaseButton.vue";
 import Logo from "~/components/partials/Logo.vue";
 import BaseInput from "~/components/base/inputs/BaseInput.vue";
+import BaseCheckbox from "~/components/base/checkboxes/BaseCheckbox.vue";
 definePageMeta({
   layout: 'auth'
 });
@@ -18,7 +19,7 @@ const handleLogin = () => {
 
 <template>
   <div class="auth-container">
-    <Logo/>
+    <Logo :is-center="true"/>
     <form @submit.prevent="handleLogin" class="auth-form">
       <BaseInput
           v-model="email"
@@ -40,6 +41,7 @@ const handleLogin = () => {
 
       <div class="options">
         <label><input v-model="rememberMe" type="checkbox"> Запомнить меня</label>
+        <BaseCheckbox id="checkbox-forgot-password" label="Запомнить меня?" v-model="rememberMe"/>
         <NuxtLink to="/forgot-password">Забыли пароль?</NuxtLink>
       </div>
 

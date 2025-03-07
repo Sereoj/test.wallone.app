@@ -25,7 +25,7 @@ const handleRegister = () => {
 
 <template>
   <div class="auth-container">
-    <Logo/>
+    <Logo :is-center="true"/>
     <form @submit.prevent="handleRegister" class="auth-form">
 
       <BaseInput

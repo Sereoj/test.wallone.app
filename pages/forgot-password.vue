@@ -17,7 +17,7 @@ const handleReset = () => {
 
 <template>
   <div class="auth-container">
-    <Logo/>
+    <Logo :is-center="true"/>
     <p class="description">
       Введите ваш email и мы отправим ссылку для сброса пароля.
     </p>
