@@ -39,6 +39,12 @@ body {
   color: theme-value($theme, text-color);
 }
 
+.main {
+  min-height: 100vh;
+  margin-top: 5rem;
+  padding: $spacing-lg;
+}
+
 .auth-container {
   background-color: theme-value($theme, secondary-color);
   padding: 2rem;

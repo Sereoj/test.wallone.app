@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import type { Comment, CommentsState, CommentResponse, ReactionType } from "~/types/comment";
-import { AxiosError, AxiosInstance } from "axios";
+import type { Comment, CommentsState, CommentResponse } from "~/types/comments";
+import { AxiosError } from "axios";
 
 export const useCommentsStore = defineStore('comments', {
     state: (): CommentsState => ({
@@ -21,12 +21,9 @@ export const useCommentsStore = defineStore('comments', {
             this.loading = true;
             this.error = null;
 
-            const { $axios } = useNuxtApp<{
-                $axios: AxiosInstance;
-            }>();
-
+            const { $axios } = useNuxtApp();
             try {
-                const response = await $axios.get<CommentResponse>(`/public/api/posts/${postId}/comments`, {
+                const response = await $axios.get<CommentResponse>(`posts/${postId}/comments`, {
                     params: {
                         page: page,
                         per_page: this.perPage
@@ -35,7 +32,6 @@ export const useCommentsStore = defineStore('comments', {
 
                 console.log('Fetched comments:', response.data);
 
-                // Если это первая страница, заменяем комментарии, иначе добавляем
                 if (page === 1) {
                     this.comments = response.data.comments;
                 } else {
@@ -62,9 +58,7 @@ export const useCommentsStore = defineStore('comments', {
             this.loading = true;
             this.error = null;
 
-            const { $axios } = useNuxtApp<{
-                $axios: AxiosInstance;
-            }>();
+            const { $axios } = useNuxtApp();
 
             try {
                 const payload: { content: string; parent_id?: number } = {
@@ -75,16 +69,14 @@ export const useCommentsStore = defineStore('comments', {
                     payload.parent_id = parentId;
                 }
 
-                const response = await $axios.post<Comment>(`/public/api/posts/${postId}/comments`, payload);
+                const response = await $axios.post<Comment>(`posts/${postId}/comments`, payload);
 
-                // Если это ответ на комментарий
                 if (parentId) {
                     const parentComment = this.comments.find(comment => comment.id === parentId);
                     if (parentComment) {
                         parentComment.replies.push(response.data);
                     }
                 } else {
-                    // Если это новый комментарий верхнего уровня
                     this.comments.unshift(response.data);
                     this.totalItems++;
                 }
@@ -103,25 +95,18 @@ export const useCommentsStore = defineStore('comments', {
         },
 
         async reactToComment(postId: number, commentId: number, type: ReactionType) {
-            const { $axios } = useNuxtApp<{
-                $axios: AxiosInstance;
-            }>();
+            const { $axios } = useNuxtApp();
 
             try {
-                await $axios.post(`/public/api/posts/${postId}/comments/${commentId}/react`, { type });
+                await $axios.post(`posts/${postId}/comments/${commentId}/react`, { type });
 
                 // Находим комментарий и обновляем его лайки
                 const updateReaction = (comments: Comment[]) => {
                     for (const comment of comments) {
                         if (comment.id === commentId) {
-                            // В реальном приложении здесь должен быть более сложный код,
-                            // который проверяет, есть ли уже реакция от этого пользователя
-                            // и обновляет ее соответствующим образом
-
-                            // Для простоты просто добавляем новую реакцию
                             comment.likes.push({
                                 id: Date.now(),
-                                user_id: 1, // Предполагаем, что это ID текущего пользователя
+                                user_id: 1,
                                 type
                             });
                             return true;
@@ -145,12 +130,10 @@ export const useCommentsStore = defineStore('comments', {
         },
 
         async reportComment(postId: number, commentId: number, reason: string) {
-            const { $axios } = useNuxtApp<{
-                $axios: AxiosInstance;
-            }>();
+            const { $axios } = useNuxtApp();
 
             try {
-                await $axios.post(`/public/api/posts/${postId}/comments/${commentId}/report`, { reason });
+                await $axios.post(`posts/${postId}/comments/${commentId}/report`, { reason });
                 console.log('Comment reported successfully');
             } catch (err: unknown) {
                 const error = err as AxiosError<{ message?: string }>;
@@ -160,12 +143,10 @@ export const useCommentsStore = defineStore('comments', {
         },
 
         async deleteComment(postId: number, commentId: number) {
-            const { $axios } = useNuxtApp<{
-                $axios: AxiosInstance;
-            }>();
+            const { $axios } = useNuxtApp();
 
             try {
-                await $axios.delete(`/public/api/posts/${postId}/comments/${commentId}`);
+                await $axios.delete(`posts/${postId}/comments/${commentId}`);
 
                 // Удаляем комментарий из состояния
                 const removeComment = (comments: Comment[], id: number): boolean => {
@@ -196,7 +177,6 @@ export const useCommentsStore = defineStore('comments', {
             }
         },
 
-        // Сбросить состояние при переходе на другой пост
         resetState() {
             this.comments = [];
             this.loading = false;

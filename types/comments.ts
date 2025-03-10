@@ -1,8 +1,8 @@
-import type {User} from "~/types/user";
+import type {ShortUser} from "~/types/user";
 
 export interface Comment {
     id: number;
-    user: User;
+    user: ShortUser;
     content: string;
     likes: Like[];
     reports: any[];

@@ -7,7 +7,6 @@ import { usePostsStore } from "~/stores/posts";
 
 import { storeToRefs } from "pinia";
 
-// Инициализация хранилищ
 const initStore = useInitStore();
 const postsStore = usePostsStore();
 const { posts, loading, error, hasMore } = storeToRefs(postsStore);
@@ -88,12 +87,6 @@ onBeforeUnmount(() => {
 .modal-tags {
   display: flex;
   gap: 8px;
-}
-
-.main {
-  min-height: 100vh;
-  margin-top: 5rem;
-  padding: $spacing-lg;
 }
 
 .description {

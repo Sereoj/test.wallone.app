@@ -144,7 +144,7 @@ const getAvatarUrl = (path: string) => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .comment-item {
   display: flex;
   margin-bottom: 1rem;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import CommentItem from "~/components/partials/comments/CommentItem.vue";
 import type { Comment } from "~/types/comments";
 import { useCommentsStore } from "~/stores/comments";

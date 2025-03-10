@@ -21,8 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue';
-
 interface Tab {
   label: string;
   value: string;
@@ -50,12 +48,10 @@ const selectTab = (tabValue: string) => {
 </script>
 
 <style lang="scss" scoped>
-
 .tabs {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px;
 }
 
 .tab-buttons {

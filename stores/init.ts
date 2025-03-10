@@ -18,7 +18,7 @@ export const useInitStore = defineStore("init", {
         async fetchInit() {
             try {
                 const { $axios } = useNuxtApp();
-                const response = await $axios.get<Init>("/public/api/init");
+                const response = await $axios.get<Init>("init");
                 Object.assign(this.$state, response.data);
                 this.isLoaded = true;
             } catch (error) {

@@ -5,21 +5,52 @@ import BaseButton from "~/components/base/buttons/BaseButton.vue";
 import BaseInput from "~/components/base/inputs/BaseInput.vue";
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: 'auth'
 });
 
-const username = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
+const username = ref('test');
+const email = ref('test@gmail.com');
+const password = ref('test12345');
+const confirmPassword = ref('test12345');
+const rememberMe = ref(true);
+const isLoading = ref(false);
 
-const handleRegister = () => {
-  console.log('Регистрация:', {
-    username: username.value,
-    email: email.value,
-    password: password.value,
-    confirmPassword: confirmPassword.value,
-  });
+const authStore = useAuthStore();
+
+const handleRegister = async () => {
+  if (!username.value || !email.value || !password.value || !confirmPassword.value) {
+    alert('Пожалуйста, заполните все поля');
+    return;
+  }
+
+  if (password.value !== confirmPassword.value) {
+    alert('Пароли не совпадают');
+    return;
+  }
+
+  isLoading.value = true;
+
+  try {
+    const success = await authStore.register(
+        username.value,
+        email.value,
+        password.value,
+        confirmPassword.value,
+        rememberMe.value
+    );
+
+    if (!success) {
+      alert(authStore.error || 'Не удалось зарегистрироваться');
+    } else {
+      navigateTo('/');
+    }
+  } catch (error) {
+    console.error('Ошибка при регистрации:', error);
+    alert('Произошла ошибка при регистрации');
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -64,12 +95,11 @@ const handleRegister = () => {
           required
       />
 
-      <BaseButton type="default">Регистрация</BaseButton>
+      <BaseButton type="default" :disabled="isLoading">
+        {{ isLoading ? 'Регистрация...' : 'Регистрация' }}
+      </BaseButton>
     </form>
 
     <p class="auth-link">Уже есть аккаунт? <a href="/login">Войти</a></p>
   </div>
 </template>
-
-<style scoped>
-</style>

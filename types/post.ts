@@ -1,9 +1,9 @@
-import { User } from '~/types/user';
-import { MediaGroup, MediaItem } from '~/types/media';
+import { MediaItem } from '~/types/media';
 import type {Settings} from "~/types/settings";
 import type {Statistics} from "~/types/statistics";
 import type {App} from "~/types/app";
 import type {Tag} from "~/types/tag";
+import type {ShortUser} from "~/types/user";
 
 export interface PostsState {
     posts: Post[];
@@ -28,7 +28,7 @@ export interface Post {
     content: string;
     settings: Settings;
     media: MediaItem[];
-    user: User;
+    user: ShortUser;
     statistics: Statistics;
     apps: App[];
     tags: Tag[];

@@ -1,8 +1,12 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// https://nuxt.com/docsconfiguration/nuxt-config
 export default defineNuxtConfig({
   modules: [
     '@nuxt/image',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxt/eslint'
+  ],
+  plugins: [
+    'plugins/axios.ts'
   ],
   css: ['~/assets/styles/global.scss'],
   compatibilityDate: '2024-11-01',

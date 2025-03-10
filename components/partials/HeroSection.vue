@@ -38,7 +38,6 @@ const imageUrl = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-
 .hero {
   position: relative;
   width: 100%;

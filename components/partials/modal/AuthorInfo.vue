@@ -1,3 +1,19 @@
+<script setup lang="ts">
+import type {ShortUser} from "~/types/user";
+import type {Statistics} from "~/types/statistics";
+
+const props = defineProps({
+  user: {
+    type: Object as PropType<ShortUser>,
+    required: true
+  },
+  statistics: {
+    type: Object as PropType<Statistics>,
+    required: true
+  }
+});
+</script>
+
 <template>
   <div class="author">
     <!-- Информация об авторе -->
@@ -42,24 +58,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { PropType } from 'vue';
-import type {User} from "~/types/user";
-import type {Statistics} from "~/types/statistics";
-
-
-const props = defineProps({
-  user: {
-    type: Object as PropType<User>,
-    required: true
-  },
-  statistics: {
-    type: Object as PropType<Statistics>,
-    required: true
-  }
-});
-</script>
 
 <style lang="scss" scoped>
 .author {

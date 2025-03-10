@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import axios, { AxiosInstance, AxiosError } from 'axios';
 import type {Post, PostsState} from "~/types/post";
+import type {AxiosError} from "axios";
 
 export const usePostsStore = defineStore('posts', {
     state: (): PostsState => ({
@@ -12,19 +12,15 @@ export const usePostsStore = defineStore('posts', {
         hasMore: true,
     }),
     actions: {
-        async fetchPosts(this: PostsState & { $axios?: AxiosInstance }) {
+        async fetchPosts(this: PostsState) {
             if (this.loading || !this.hasMore) return;
 
             this.loading = true;
             this.error = null;
 
-            // Получаем Axios из Nuxt через useNuxtApp (предполагается, что он зарегистрирован в плагине)
-            const { $axios } = useNuxtApp<{
-                $axios: AxiosInstance;
-            }>();
-
             try {
-                const response = await $axios.get<Post[]>('/public/api/posts', {
+                const { $axios } = useNuxtApp();
+                const response = await $axios.get<Post[]>('/posts', {
                     params: {
                         per_page: this.perPage,
                         page: this.page,

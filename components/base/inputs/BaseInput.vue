@@ -13,10 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
-
-// Определяем пропсы компонента
-const props = defineProps({
+defineProps({
   modelValue: {
     type: String,
     default: '',

@@ -1,40 +1,85 @@
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { storeToRefs } from "pinia";
+import { navigateTo } from "#app";
+import { IconMicrophone, IconSearch, IconMenu } from '@tabler/icons-vue';
 import BaseButton from "~/components/base/buttons/BaseButton.vue";
 import SearchBox from "~/components/partials/SearchBox.vue";
 import Logo from "~/components/partials/Logo.vue";
+import UserAvatar from "~/components/partials/UserAvatar.vue";
 
 const props = defineProps({
   placeholder: {
     type: String,
-  }
+    default: "Поиск...", // Значение по умолчанию
+  },
 });
 
+const authStore = useAuthStore();
+const { isLoggedIn } = storeToRefs(authStore);
+
+const user = computed(() => authStore.user);
+
+// Состояния для меню и поиска
 const isMenuOpen = ref(false);
 const isMobileSearchOpen = ref(false);
+const isProfileMenuOpen = ref(false);
+const profileMenuRef = ref<HTMLElement | null>(null);
 
+// Функция для закрытия меню при клике вне его
+function handleClickOutside(event: MouseEvent) {
+  if (
+      profileMenuRef.value &&
+      !profileMenuRef.value.contains(event.target as Node)
+  ) {
+    isProfileMenuOpen.value = false;
+  }
+}
+
+// Открытие/закрытие меню профиля
+function toggleProfileMenu() {
+  isProfileMenuOpen.value = !isProfileMenuOpen.value;
+}
+
+// Переключение мобильного меню
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
 }
 
+// Переключение мобильного поиска
 function toggleMobileSearch() {
   isMobileSearchOpen.value = !isMobileSearchOpen.value;
 }
 
+// Обработчики навигации
 function handlePublish() {
-  navigateTo('login');
-  console.log('handlePublish');
+  navigateTo("/publish");
 }
-
 function handleLogin() {
-  navigateTo('login');
-  console.log('handleLogin');
+  navigateTo("/login");
 }
-
 function handleRegister() {
-  navigateTo('register');
-  console.log('handleRegister');
+  navigateTo("/register");
+}
+function handleProfile() {
+  navigateTo("/profile");
+}
+function handleLogout() {
+  authStore.logout();
 }
 
+// Добавление и удаление глобального слушателя событий
+onMounted(() => {
+  if (typeof window !== "undefined") {
+    window.addEventListener("click", handleClickOutside);
+  }
+});
+
+onUnmounted(() => {
+  if (typeof window !== "undefined") {
+    window.removeEventListener("click", handleClickOutside);
+  }
+});
 </script>
 
 <template>
@@ -49,65 +94,85 @@ function handleRegister() {
       <div class="header-column header-center desktop-search">
         <SearchBox name="search-box-tablet" :placeholder="props.placeholder" />
         <BaseButton type="icon" name="mic-button" aria-label="Activate microphone">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-               stroke="currentColor" width="20" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 18.75V21m0-2.25a6 6 0 006-6v-3a6 6 0 10-12 0v3a6 6 0 006 6zm6-6h-12"/>
-          </svg>
+          <IconMicrophone/>
         </BaseButton>
       </div>
 
       <!-- Кнопки действий (планшет и десктоп) -->
-      <div class="header-column header-right desktop-actions">
+      <div v-if="!isLoggedIn" class="header-column header-right desktop-actions">
         <BaseButton type="default" @click="handlePublish">Опубликовать</BaseButton>
         <BaseButton type="outline" @click="handleLogin">Войти</BaseButton>
         <BaseButton type="default" @click="handleRegister">Регистрация</BaseButton>
       </div>
 
+      <div v-else class="header-column header-right desktop-profile">
+        <div class="profile-dropdown" ref="profileMenuRef">
+          <!-- Кнопка для открытия меню -->
+          <BaseButton type="icon" aria-label="Profile" @click="toggleProfileMenu">
+            <UserAvatar :src="user?.avatar?.path" :size="40" />
+          </BaseButton>
+          <span class="username" @click="toggleProfileMenu">{{ user?.username || "Username" }}</span>
+
+          <!-- Выпадающее меню -->
+          <div v-if="isProfileMenuOpen" class="dropdown-menu">
+            <div class="dropdown-item">
+              <strong>{{ user?.username }}</strong>
+            </div>
+            <div class="dropdown-item">
+              <BaseButton type="default" block @click="handleLogout">Выйти</BaseButton>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Иконки (мобильные устройства) -->
       <div class="header-column header-right mobile-actions">
-        <BaseButton type="icon" aria-label="Поиск" @click="toggleMobileSearch">
-          🔍
-        </BaseButton>
-        <BaseButton type="icon" aria-label="Меню" @click="toggleMenu">
-          ☰
-        </BaseButton>
+        <BaseButton type="icon" aria-label="Поиск" @click="toggleMobileSearch"><IconSearch/></BaseButton>
+        <BaseButton type="icon" aria-label="Меню" @click="toggleMenu"><IconMenu/></BaseButton>
       </div>
     </div>
 
     <!-- Мобильный поиск -->
-    <div v-if="isMobileSearchOpen" class="mobile-search-container">
+    <div v-show="isMobileSearchOpen" class="mobile-search-container">
       <SearchBox name="search-box-mobile" :placeholder="props.placeholder" />
     </div>
 
     <!-- Мобильное меню -->
-    <nav v-if="isMenuOpen" class="mobile-menu">
+    <nav v-show="isMenuOpen" class="mobile-menu">
       <ul>
-        <li><a href="#" @click.prevent="handlePublish">Опубликовать</a></li>
-        <li><a href="#" @click.prevent="handleLogin">Войти</a></li>
-        <li><a href="#" @click.prevent="handleRegister">Регистрация</a></li>
+        <li v-if="!isLoggedIn">
+          <a href="#" @click.prevent="handlePublish">Опубликовать</a>
+        </li>
+        <li v-if="!isLoggedIn">
+          <a href="#" @click.prevent="handleLogin">Войти</a>
+        </li>
+        <li v-if="!isLoggedIn">
+          <a href="#" @click.prevent="handleRegister">Регистрация</a>
+        </li>
+        <li v-else>
+          <a href="#" @click.prevent="handleProfile">Профиль</a>
+        </li>
+        <li v-if="isLoggedIn">
+          <a href="#" @click.prevent="handleLogout">Выйти</a>
+        </li>
       </ul>
     </nav>
   </header>
 </template>
 
-
-<style lang="scss">
-$header-padding: $spacing-md $spacing-lg;
-
+<style lang="scss" scoped>
 .header {
   position: fixed;
   top: 0;
   width: 100%;
   background-color: theme-value($theme, background-color);
   border-bottom: 1px solid theme-value($theme, border-color);
+  z-index: 1000;
+  padding: $spacing-md $spacing-lg;
 
   @media (max-width: $mobile-breakpoint) {
     border-bottom: none;
   }
-
-  z-index: 1000;
-  padding: $spacing-md $spacing-lg;
 
   .header-container {
     display: flex;
@@ -192,6 +257,52 @@ $header-padding: $spacing-md $spacing-lg;
 
     @media (min-width: $mobile-breakpoint) {
       display: none;
+    }
+  }
+
+  .profile-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    @media (max-width: $mobile-breakpoint) {
+      display: none;
+    }
+
+    .username {
+      margin-left: 0.5rem;
+      font-weight: bold;
+      color: theme-value($theme, primary-color);
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: theme-value($theme, background-color);
+      border: 1px solid theme-value($theme, border-color);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      width: 200px;
+      overflow: hidden;
+
+      .dropdown-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid theme-value($theme, border-color);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        strong {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-size: 1rem;
+        }
+      }
     }
   }
 }

@@ -5,12 +5,13 @@ import Logo from "~/components/partials/Logo.vue";
 import BaseInput from "~/components/base/inputs/BaseInput.vue";
 import BaseCheckbox from "~/components/base/checkboxes/BaseCheckbox.vue";
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: 'auth'
 });
 
 const email = ref('');
 const password = ref('');
-const rememberMe = ref(false);
+const rememberMe = ref();
 
 const handleLogin = () => {
   console.log('Логин:', email.value, 'Пароль:', password.value, 'Запомнить меня:', rememberMe.value);
