@@ -75,12 +75,11 @@ const props = defineProps<{
 }>();
 
 const isModalOpen = ref(false);
-const isLoading = ref(true);
 const selectedSlug = ref<string>('');
 
 const openMediaModal = (slug?: string) => {
   if (slug) {
-    console.log('Opening modal with slug:', slug);
+    logger('Opening modal with slug:', slug);
     selectedSlug.value = slug;
     isModalOpen.value = true;
 
@@ -90,10 +89,6 @@ const openMediaModal = (slug?: string) => {
   } else {
     console.error('No slug provided');
   }
-};
-
-const handleLoading = (loading: boolean) => {
-  isLoading.value = loading;
 };
 
 const closeMediaModal = () => {

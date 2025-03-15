@@ -9,12 +9,34 @@ definePageMeta({
   middleware: 'auth'
 });
 
-const email = ref('');
-const password = ref('');
+const email = ref('ser.12egorov@gmail.com');
+const password = ref('ser.12egorov');
 const rememberMe = ref();
+const isLoading = ref(false);
 
-const handleLogin = () => {
-  console.log('Логин:', email.value, 'Пароль:', password.value, 'Запомнить меня:', rememberMe.value);
+const authStore = useAuthStore();
+
+const handleLogin = async () => {
+  if(!email.value || !password.value) {
+    alert('Заполните поля, пожалуйста!');
+    return;
+  }
+  isLoading.value = true;
+
+  try {
+    const request = await authStore.login(email.value, password.value, rememberMe.value);
+
+    if(!request) {
+      alert(authStore.error);
+    } else {
+      navigateTo('/')
+    }
+  }catch (e) {
+    logger('Ошибка при авторизации', e);
+    alert('Произошла ошибка при авторизации');
+  }finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -45,8 +67,7 @@ const handleLogin = () => {
         <BaseCheckbox id="checkbox-forgot-password" label="Запомнить меня?" v-model="rememberMe"/>
         <NuxtLink to="/forgot-password">Забыли пароль?</NuxtLink>
       </div>
-
-      <BaseButton type="default">Войти</BaseButton>
+      <BaseButton type="default" :disabled="isLoading">{{ isLoading ? 'Авторизация...' : 'Авторизация' }}</BaseButton>
     </form>
 
     <p class="auth-link">

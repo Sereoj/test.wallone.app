@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import Header from "~/components/layouts/Header.vue";
-import { useInitStore } from "~/stores/init";
+import { useInitStore } from "~/composables/init";
 import { computed, onMounted } from "vue";
 
 const initStore = useInitStore();
-
-onMounted(() => {
-  if (!initStore.isLoaded) {
-    initStore.fetchInit();
-  }
-});
+computed(() => initStore.fetchInit());
 
 const randomHit = computed(() => {
   const hits = initStore.hits;

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import type { Comment, CommentsState, CommentResponse } from "~/types/comments";
-import { AxiosError } from "axios";
 
 export const useCommentsStore = defineStore('comments', {
     state: (): CommentsState => ({
@@ -21,32 +20,30 @@ export const useCommentsStore = defineStore('comments', {
             this.loading = true;
             this.error = null;
 
-            const { $axios } = useNuxtApp();
             try {
-                const response = await $axios.get<CommentResponse>(`posts/${postId}/comments`, {
-                    params: {
-                        page: page,
+                const config = useRuntimeConfig();
+                const response = await $fetch<CommentResponse>(`${config.public.apiBase}posts/${postId}/comments`, {
+                    method: 'GET',
+                    query: {
+                        page,
                         per_page: this.perPage
                     }
                 });
 
-                console.log('Fetched comments:', response.data);
+                logger('Fetched comments:', response);
 
                 if (page === 1) {
-                    this.comments = response.data.comments;
+                    this.comments = response.comments;
                 } else {
-                    this.comments.push(...response.data.comments);
+                    this.comments.push(...response.comments);
                 }
 
-                // Обновляем метаданные
-                this.totalPages = response.data.meta.totalPages;
-                this.totalItems = response.data.meta.totalItems;
+                this.totalPages = response.meta.totalPages;
+                this.totalItems = response.meta.totalItems;
                 this.page = page;
-                this.hasMore = page < response.data.meta.totalPages;
-            } catch (err: unknown) {
-                const error = err as AxiosError<{ message?: string }>;
-                const errorMessage =
-                    error.response?.data?.message || error.message || 'Failed to fetch comments';
+                this.hasMore = page < response.meta.totalPages;
+            } catch (error: any) {
+                const errorMessage = error.data?.message || error.message || 'Failed to fetch comments';
                 console.error('Error fetching comments:', errorMessage);
                 this.error = errorMessage;
             } finally {
@@ -58,34 +55,27 @@ export const useCommentsStore = defineStore('comments', {
             this.loading = true;
             this.error = null;
 
-            const { $axios } = useNuxtApp();
-
             try {
-                const payload: { content: string; parent_id?: number } = {
-                    content
-                };
+                const payload: { content: string; parent_id?: number } = { content };
+                if (parentId) payload.parent_id = parentId;
 
-                if (parentId) {
-                    payload.parent_id = parentId;
-                }
-
-                const response = await $axios.post<Comment>(`posts/${postId}/comments`, payload);
+                const config = useRuntimeConfig();
+                const response = await $fetch<Comment>(`${config.public.apiBase}posts/${postId}/comments`, {
+                    method: 'POST',
+                    body: payload
+                });
 
                 if (parentId) {
                     const parentComment = this.comments.find(comment => comment.id === parentId);
-                    if (parentComment) {
-                        parentComment.replies.push(response.data);
-                    }
+                    parentComment?.replies.push(response);
                 } else {
-                    this.comments.unshift(response.data);
+                    this.comments.unshift(response);
                     this.totalItems++;
                 }
 
-                return response.data;
-            } catch (err: unknown) {
-                const error = err as AxiosError<{ message?: string }>;
-                const errorMessage =
-                    error.response?.data?.message || error.message || 'Failed to add comment';
+                return response;
+            } catch (error: any) {
+                const errorMessage = error.data?.message || error.message || 'Failed to add comment';
                 console.error('Error adding comment:', errorMessage);
                 this.error = errorMessage;
                 throw error;
@@ -95,13 +85,14 @@ export const useCommentsStore = defineStore('comments', {
         },
 
         async reactToComment(postId: number, commentId: number, type: ReactionType) {
-            const { $axios } = useNuxtApp();
-
             try {
-                await $axios.post(`posts/${postId}/comments/${commentId}/react`, { type });
+                const config = useRuntimeConfig();
+                await $fetch(`${config.public.apiBase}posts/${postId}/comments/${commentId}/react`, {
+                    method: 'POST',
+                    body: { type }
+                });
 
-                // Находим комментарий и обновляем его лайки
-                const updateReaction = (comments: Comment[]) => {
+                const updateReaction = (comments: Comment[]): boolean => {
                     for (const comment of comments) {
                         if (comment.id === commentId) {
                             comment.likes.push({
@@ -111,44 +102,39 @@ export const useCommentsStore = defineStore('comments', {
                             });
                             return true;
                         }
-
-                        if (comment.replies && comment.replies.length > 0) {
-                            if (updateReaction(comment.replies)) {
-                                return true;
-                            }
-                        }
+                        if (comment.replies?.length && updateReaction(comment.replies)) return true;
                     }
                     return false;
                 };
 
                 updateReaction(this.comments);
-            } catch (err: unknown) {
-                const error = err as AxiosError<{ message?: string }>;
+            } catch (error: any) {
                 console.error(`Error reacting to comment (${type}):`, error.message);
                 throw error;
             }
         },
 
         async reportComment(postId: number, commentId: number, reason: string) {
-            const { $axios } = useNuxtApp();
-
             try {
-                await $axios.post(`posts/${postId}/comments/${commentId}/report`, { reason });
-                console.log('Comment reported successfully');
-            } catch (err: unknown) {
-                const error = err as AxiosError<{ message?: string }>;
+                const config = useRuntimeConfig();
+                await $fetch(`${config.public.apiBase}posts/${postId}/comments/${commentId}/report`, {
+                    method: 'POST',
+                    body: { reason }
+                });
+                logger('Comment reported successfully');
+            } catch (error: any) {
                 console.error('Error reporting comment:', error.message);
                 throw error;
             }
         },
 
         async deleteComment(postId: number, commentId: number) {
-            const { $axios } = useNuxtApp();
-
             try {
-                await $axios.delete(`posts/${postId}/comments/${commentId}`);
+                const config = useRuntimeConfig();
+                await $fetch(`${config.public.apiBase}posts/${postId}/comments/${commentId}`, {
+                    method: 'DELETE'
+                });
 
-                // Удаляем комментарий из состояния
                 const removeComment = (comments: Comment[], id: number): boolean => {
                     const index = comments.findIndex(c => c.id === id);
                     if (index !== -1) {
@@ -156,22 +142,13 @@ export const useCommentsStore = defineStore('comments', {
                         this.totalItems--;
                         return true;
                     }
-
-                    // Ищем в ответах
-                    for (const comment of comments) {
-                        if (comment.replies && comment.replies.length > 0) {
-                            if (removeComment(comment.replies, id)) {
-                                return true;
-                            }
-                        }
-                    }
-
-                    return false;
+                    return comments.some(comment =>
+                        comment.replies?.length && removeComment(comment.replies, id)
+                    );
                 };
 
                 removeComment(this.comments, commentId);
-            } catch (err: unknown) {
-                const error = err as AxiosError<{ message?: string }>;
+            } catch (error: any) {
                 console.error('Error deleting comment:', error.message);
                 throw error;
             }

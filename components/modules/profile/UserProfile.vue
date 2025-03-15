@@ -168,7 +168,7 @@ const toggleFollow = () => {
 };
 
 const openMessage = () => {
-  console.log('Открыть сообщения');
+  logger('Открыть сообщения');
 };
 </script>
 

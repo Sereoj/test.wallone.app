@@ -37,11 +37,11 @@ const props = defineProps<{
 const userAvatar = ref('https://via.placeholder.com/40');
 
 const likePost = (postId: number) => {
-  console.log(`Liked post ${postId}`);
+  logger(`Liked post ${postId}`);
 };
 
 const commentPost = (postId: number) => {
-  console.log(`Commented on post ${postId}`);
+  logger(`Commented on post ${postId}`);
 };
 
 const formattedDate = (timestamp: string) => {

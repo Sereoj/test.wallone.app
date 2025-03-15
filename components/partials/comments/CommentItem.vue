@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { Comment } from "~/types/comment";
-import { useCommentsStore } from "~/stores/comments";
+import { useCommentsStore } from "~/composables/comments";
 
 defineProps<{
   comment: Comment;

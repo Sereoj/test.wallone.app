@@ -2,8 +2,8 @@
 import ExploreFilters from "~/components/modules/content/ExploreFilters.vue";
 import HeroSection from "~/components/partials/HeroSection.vue";
 import Gallery from "~/components/modules/content/Gallery.vue";
-import { useInitStore } from "~/stores/init";
-import { usePostsStore } from "~/stores/posts";
+import { useInitStore } from "~/composables/init";
+import { usePostsStore } from "~/composables/posts";
 
 import { storeToRefs } from "pinia";
 
@@ -14,10 +14,9 @@ const observerTarget = ref<HTMLElement | null>(null);
 
 let observer: IntersectionObserver | null = null;
 
-// Загружаем посты
-onMounted(async () => {
-  await postsStore.fetchPosts();
+await postsStore.fetchPosts();
 
+onMounted(() => {
   if (observerTarget.value) {
     observer = new IntersectionObserver(
         (entries) => {
@@ -33,12 +32,6 @@ onMounted(async () => {
   }
 });
 
-// Отслеживаем обновление постов
-watch(() => posts.value, (newPosts) => {
-  console.log("Посты обновлены:", newPosts);
-});
-
-// Отключаем Intersection Observer при размонтировании
 onBeforeUnmount(() => {
   if (observer) observer.disconnect();
 });

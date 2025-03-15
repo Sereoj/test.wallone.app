@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import CommentItem from "~/components/partials/comments/CommentItem.vue";
 import type { Comment } from "~/types/comments";
-import { useCommentsStore } from "~/stores/comments";
+import { useCommentsStore } from "~/composables/comments";
 
 const props = defineProps({
   postId: {

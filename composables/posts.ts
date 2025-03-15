@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import type {Post, PostsState} from "~/types/post";
-import type {AxiosError} from "axios";
+import type { Post, PostsState } from "~/types/post";
 
 export const usePostsStore = defineStore('posts', {
     state: (): PostsState => ({
@@ -12,26 +11,26 @@ export const usePostsStore = defineStore('posts', {
         hasMore: true,
     }),
     actions: {
-        async fetchPosts(this: PostsState) {
+        async fetchPosts() {
             if (this.loading || !this.hasMore) return;
 
             this.loading = true;
             this.error = null;
 
             try {
-                const { $axios } = useNuxtApp();
-                const response = await $axios.get<Post[]>('/posts', {
-                    params: {
+                const config = useRuntimeConfig();
+                const response = await $fetch<Post[]>("/api/posts", {
+                    query: {
                         per_page: this.perPage,
                         page: this.page,
                     },
                 });
 
-                console.log('Fetched posts:', response.data);
+                logger('Fetched posts:', response);
 
-                if (response.data && response.data.length > 0) {
+                if (response && response.length > 0) {
                     this.posts.push(
-                        ...response.data.map((post) => ({
+                        ...response.map((post) => ({
                             ...post,
                             media: post.media || [],
                         }))
@@ -40,12 +39,9 @@ export const usePostsStore = defineStore('posts', {
                 } else {
                     this.hasMore = false;
                 }
-            } catch (err: unknown) {
-                // Обработка ошибок с типизацией для Axios
-                const error = err as AxiosError<{ message?: string }>;
-                const errorMessage =
-                    error.response?.data?.message || error.message || 'Failed to fetch posts';
-                console.error('Error fetching posts:', errorMessage); // Заменяем Logger на console.error
+            } catch (error: any) {
+                const errorMessage = error.data?.message || error.message || 'Failed to fetch posts';
+                console.error('Error fetching posts:', errorMessage);
                 this.error = errorMessage;
             } finally {
                 this.loading = false;

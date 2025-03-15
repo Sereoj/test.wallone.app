@@ -11,7 +11,7 @@ import UserAvatar from "~/components/partials/UserAvatar.vue";
 const props = defineProps({
   placeholder: {
     type: String,
-    default: "Поиск...", // Значение по умолчанию
+    default: "Поиск...",
   },
 });
 
@@ -26,7 +26,6 @@ const isMobileSearchOpen = ref(false);
 const isProfileMenuOpen = ref(false);
 const profileMenuRef = ref<HTMLElement | null>(null);
 
-// Функция для закрытия меню при клике вне его
 function handleClickOutside(event: MouseEvent) {
   if (
       profileMenuRef.value &&
@@ -36,7 +35,7 @@ function handleClickOutside(event: MouseEvent) {
   }
 }
 
-// Открытие/закрытие меню профиля
+
 function toggleProfileMenu() {
   isProfileMenuOpen.value = !isProfileMenuOpen.value;
 }
@@ -51,7 +50,6 @@ function toggleMobileSearch() {
   isMobileSearchOpen.value = !isMobileSearchOpen.value;
 }
 
-// Обработчики навигации
 function handlePublish() {
   navigateTo("/publish");
 }
@@ -111,7 +109,7 @@ onUnmounted(() => {
           <BaseButton type="icon" aria-label="Profile" @click="toggleProfileMenu">
             <UserAvatar :src="user?.avatar?.path" :size="40" />
           </BaseButton>
-          <span class="username" @click="toggleProfileMenu">{{ user?.username || "Username" }}</span>
+          <span class="username" @click="toggleProfileMenu">{{ user.username}}</span>
 
           <!-- Выпадающее меню -->
           <div v-if="isProfileMenuOpen" class="dropdown-menu">

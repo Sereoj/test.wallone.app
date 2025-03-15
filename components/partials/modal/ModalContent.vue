@@ -93,12 +93,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { usePostStore } from '~/stores/post';
+import { usePostStore } from '~/composables/post';
 import type { MediaItem } from "~/types/media";
 import AuthorInfo from "~/components/partials/modal/AuthorInfo.vue";
 import Tabs from "~/components/modules/content/Tabs.vue";
 import Comments from "~/components/partials/comments/Comments.vue";
-import {useCommentsStore} from "~/stores/comments";
+import {useCommentsStore} from "~/composables/comments";
 
 const props = defineProps<{
   slug: string;
@@ -119,13 +119,13 @@ const activeSection = ref('core');
 // Асинхронная инициализация компонента
 const setupComponent = async () => {
   try {
-    console.log('Async setup for slug:', props.slug);
+    logger('Async setup for slug:', props.slug);
 
     // Загружаем данные
     await postStore.fetchPost(props.slug);
 
-    console.log('Post data loaded:', postStore.postData);
-    console.log('Current media:', postStore.currentMedia);
+    logger('Post data loaded:', postStore.postData);
+    logger('Current media:', postStore.currentMedia);
   } catch (err) {
     console.error('Error in async setup:', err);
     error.value = err instanceof Error ? err.message : 'Произошла ошибка при загрузке';
@@ -137,14 +137,14 @@ await setupComponent();
 
 const thumbnails = computed<MediaItem[]>(() => {
   const media = postStore.getFlatMedia(postStore.postData.media);
-  console.log('Computed thumbnails:', media);
+  logger('Computed thumbnails:', media);
   return media;
 });
 
 const selectThumbnail = (index: number) => {
   activeIndex.value = index;
   postStore.setCurrentMedia(index);
-  console.log('Selected thumbnail at index:', index);
+  logger('Selected thumbnail at index:', index);
 };
 </script>
 

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type { Init } from "~/types/init";
-import type {Tag} from "~/types/tag";
+import type { Tag } from "~/types/tag";
 
 export const useInitStore = defineStore("init", {
     state: () => ({
@@ -17,9 +17,9 @@ export const useInitStore = defineStore("init", {
     actions: {
         async fetchInit() {
             try {
-                const { $axios } = useNuxtApp();
-                const response = await $axios.get<Init>("init");
-                Object.assign(this.$state, response.data);
+                const config = useRuntimeConfig();
+                const response = await $fetch<Init>("/api/init");
+                Object.assign(this.$state, response);
                 this.isLoaded = true;
             } catch (error) {
                 console.error("Ошибка при загрузке данных init:", error);

@@ -7,9 +7,13 @@ export interface TokenResponse {
     expires_at: string;
 }
 
-export interface RegisterResponse {
+export interface AuthResponse {
     user: ShortUser;
     token: TokenResponse;
+}
+
+export interface MessageResponse {
+    message: string;
 }
 
 export interface ErrorResponse {

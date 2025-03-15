@@ -5,13 +5,14 @@ import BaseButton from "~/components/base/buttons/BaseButton.vue";
 import BaseInput from "~/components/base/inputs/BaseInput.vue";
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: 'auth',
 });
 
 const email = ref('');
 
 const handleReset = () => {
-  console.log('Email для сброса пароля:', email.value);
+  logger('Email для сброса пароля:', email.value);
 };
 </script>
 
